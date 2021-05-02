@@ -23,7 +23,6 @@ volume = cast(interface, POINTER(IAudioEndpointVolume))
 # volume.GetMute()
 # volume.GetMasterVolumeLevel()
 volumeRange = volume.GetVolumeRange()
-volume.SetMasterVolumeLevel(0, None)
 minVol = volumeRange[0]
 maxVol = volumeRange[1]
 
@@ -31,7 +30,7 @@ while True:
     success, img = cap.read()
     img = detector.findHands(img)
     lmList = detector.findPosition(img, draw=False)
-    print(lmList)
+    # print(lmList)
 
     if len(lmList) != 0:
         x1, y1 = lmList[4][1], lmList[4][2]
@@ -44,9 +43,12 @@ while True:
         cv2.circle(img, (cx, cy), 15, (255, 0, 0), cv2.FILLED)  # middle point
 
         length = math.hypot(x2 - x1, y2 - y1)  # Get the length
-        cv2.putText(img, f'Length: {int(length)}', (10, 240), cv2.FONT_HERSHEY_COMPLEX, 1, (255, 0, 0), 2)
 
-        if (length < 50):
+        vol = np.interp(length, [30, 200], [minVol, maxVol])
+        print(vol)
+        volume.SetMasterVolumeLevel(vol, None)
+
+        if length < 30:
             cv2.circle(img, (cx, cy), 15, (0, 0, 255), cv2.FILLED)  # middle point
 
     cTime = time.time()
