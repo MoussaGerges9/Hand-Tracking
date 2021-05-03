@@ -75,7 +75,7 @@ class handDetector():
                 else:
                     fingersUp.append(0)
 
-            print(fingersUp)
+            return fingersUp
 
 
 def main():
