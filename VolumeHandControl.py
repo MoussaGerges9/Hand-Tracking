@@ -38,7 +38,8 @@ while True:
         area = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) // 100  # size of the box around the hand
 
         if 150 < area < 1000:  # filter by the size
-            print(area)
+            #print(area)
+            detector.fingersUp(lmList)
 
             x1, y1 = lmList[4][1], lmList[4][2]
             x2, y2 = lmList[8][1], lmList[8][2]

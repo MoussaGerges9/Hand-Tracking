@@ -1,5 +1,6 @@
-import cv2
 import time
+
+import cv2
 import mediapipe as mp
 
 
@@ -42,8 +43,10 @@ class handDetector():
                 yList.append(cy)
                 lmlist.append([id, cx, cy])
                 # if id == 5:  # Id of the point
-                if draw:
-                    cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)  # design circle on the selected point
+
+                ### Redesign blue circles
+                # if draw:
+                #     cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)  # design circle on the selected point
 
             xMin, xMax = min(xList), max(xList)
             yMin, yMax = min(yList), max(yList)
@@ -54,6 +57,25 @@ class handDetector():
                               2)  # design rectangle around the hand
 
         return lmlist, bBox
+
+    def fingersUp(self, lmList):
+        tipIds = [4, 8, 12, 16, 20]
+        fingersUp = []  # Fingers up and down in order
+
+        if len(lmList) != 0:
+            # Thumb - Works only when hands isn't opened well
+            if lmList[tipIds[0]][2] < lmList[tipIds[0] + 1][2]:
+                fingersUp.append(1)
+            else:
+                fingersUp.append(0)
+            # 4 Finger
+            for finger in range(1, 5):
+                if lmList[tipIds[finger]][2] < lmList[tipIds[finger] - 2][2]:  # Index lower point < Index upper point
+                    fingersUp.append(1)
+                else:
+                    fingersUp.append(0)
+
+            print(fingersUp)
 
 
 def main():
