@@ -1,11 +1,13 @@
-import cv2
-import time
-import numpy as np
-import HandTrackingModule as htm
 import math
+import time
 from ctypes import cast, POINTER
+
+import cv2
+import numpy as np
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+
+import HandTrackingModule as htm
 
 wCam, hCam = 640, 480
 
@@ -45,16 +47,24 @@ while True:
             cv2.circle(img, (x1, y1), 15, (255, 0, 0), cv2.FILLED)
             cv2.circle(img, (x2, y2), 15, (255, 0, 0), cv2.FILLED)
             cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 3)
-            cv2.circle(img, (cx, cy), 15, (255, 0, 0), cv2.FILLED)  # middle point
+            # cv2.circle(img, (cx, cy), 15, (255, 0, 0), cv2.FILLED)  # middle point
 
             length = math.hypot(x2 - x1, y2 - y1)  # Get the length
 
-            vol = np.interp(length, [30, 200], [minVol, maxVol])
-            # print(vol)
-            volume.SetMasterVolumeLevel(vol, None)
+            # Change Volume
+            volBar = np.interp(length, [30, 200], [minVol, maxVol])
+            volPer = np.interp(length, [30, 200], [0, 100])
+            # volume.SetMasterVolumeLevel(volBar, None)
+
+            smoothness = 5
+            volPer = smoothness * round(volPer / smoothness)
+            volume.SetMasterVolumeLevelScalar(volPer / 100, None)  # More accurate
 
             if length < 30:
-                cv2.circle(img, (cx, cy), 15, (0, 0, 255), cv2.FILLED)  # middle point
+                cv2.circle(img, (cx, cy), 10, (0, 0, 255), cv2.FILLED)  # middle point
+
+            elif length > 200:
+                cv2.circle(img, (cx, cy), 10, (0, 255, 0), cv2.FILLED)  # middle point
 
     cTime = time.time()
     fps = 1 / (cTime - pTime)
