@@ -27,6 +27,10 @@ class handDetector():
         return img
 
     def findPosition(self, img, handNo=0, draw=True):
+        xList = []
+        yList = []
+        bBox = []
+
         lmlist = []
         if self.results.multi_hand_landmarks:
             myHand = self.results.multi_hand_landmarks[handNo]
@@ -34,11 +38,22 @@ class handDetector():
             for id, lm in enumerate(myHand.landmark):
                 h, w, c = img.shape
                 cx, cy = int(lm.x * w), int(lm.y * h)
+                xList.append(cx)
+                yList.append(cy)
                 lmlist.append([id, cx, cy])
                 # if id == 5:  # Id of the point
                 if draw:
-                    cv2.circle(img, (cx, cy), 15, (255, 0, 0), cv2.FILLED)  # design circle on the selected point
-        return lmlist
+                    cv2.circle(img, (cx, cy), 5, (255, 0, 0), cv2.FILLED)  # design circle on the selected point
+
+            xMin, xMax = min(xList), max(xList)
+            yMin, yMax = min(yList), max(yList)
+            bBox = xMin, yMin, xMax, yMax
+
+            if draw:
+                cv2.rectangle(img, (bBox[0] - 20, bBox[1] - 20), (bBox[2] + 20, bBox[3] + 20), (255, 0, 0),
+                              2)  # design rectangle around the hand
+
+        return lmlist, bBox
 
 
 def main():
