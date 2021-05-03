@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 from comtypes import CLSCTX_ALL
 from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from pynput.keyboard import Controller, KeyCode
 
 import HandTrackingModule as htm
 
@@ -28,6 +29,9 @@ volumeRange = volume.GetVolumeRange()
 minVol = volumeRange[0]
 maxVol = volumeRange[1]
 
+videoState = True
+playPause = True
+
 while True:
     success, img = cap.read()
     img = detector.findHands(img)
@@ -39,7 +43,8 @@ while True:
 
         fingers = detector.fingersUp(lmList)
         downFingers = fingers[2] + fingers[3] + fingers[4]
-        
+        allFingers = downFingers + fingers[0] + fingers[1]
+
         if 150 < area < 1000 and downFingers == 0 and fingers[1] != 0:  # filter by the size and control other fingers
 
             x1, y1 = lmList[4][1], lmList[4][2]
@@ -67,6 +72,19 @@ while True:
 
             elif length > 200:
                 cv2.circle(img, (cx, cy), 10, (0, 255, 0), cv2.FILLED)  # middle point
+
+        elif allFingers == 0 and playPause:  # Pause video
+            videoState = True
+            playPause = False
+
+        elif allFingers == 5 and not playPause:  # Play video
+            videoState = True
+            playPause = True
+
+        elif videoState:  # Play and Pause button
+            keyboard = Controller()
+            keyboard.press(KeyCode.from_vk(0xB3))
+            videoState = False
 
     cTime = time.time()
     fps = 1 / (cTime - pTime)
